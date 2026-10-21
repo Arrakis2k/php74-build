@@ -1,0 +1,19 @@
+name: Compilar PHP 7.4 para Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v5
+
+      - name: Compilar PHP 7.4-CVE-2026-109618-109619
+        uses: php/php-windows-builder/php@v1
+        with:
+          php-version: '7.4-CVE-2026-109618-109619'
+          arch: x64
+          ts: nts

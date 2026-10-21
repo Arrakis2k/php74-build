@@ -1,4 +1,5 @@
-name: Compilar PHP 7.4 para Windows
+
+name: Compilar PHP 7.4 CVE para Windows
 
 on:
   workflow_dispatch:
@@ -8,12 +9,32 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - name: Descargar repositorio
+      - name: Descargar rama personalizada de PHP
         uses: actions/checkout@v5
-
-      - name: Compilar PHP 7.4-CVE-2026-109618-109619
-        uses: php/php-windows-builder/php@v1
         with:
-          php-version: '7.4-CVE-2026-109618-109619'
-          arch: x64
-          ts: nts
+          repository: php/php-src
+          ref: PHP-7.4-CVE-2026-109618-109619
+          path: php-src
+
+      - name: Instalar herramientas de compilación
+        shell: pwsh
+        run: |
+          Install-Module -Name BuildPhp `
+            -Repository PSGallery `
+            -Force `
+            -Scope CurrentUser
+
+      - name: Compilar PHP desde la rama descargada
+        shell: pwsh
+        working-directory: php-src
+        run: |
+          Import-Module BuildPhp
+          Invoke-PhpBuild -Arch x64 -Ts nts
+
+      - name: Publicar archivos compilados
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-7.4-cve-2026-109618-109619-x64-nts
+          path: php-src/artifacts/
+          if-no-files-found: error
+          retention-days: 7
